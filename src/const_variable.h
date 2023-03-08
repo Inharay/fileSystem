@@ -1,0 +1,1 @@
+constexpr int BLK_SIZE = 512;
