@@ -1,0 +1,1 @@
+bazel build //test:test_add  --compilation_mode=dbg
