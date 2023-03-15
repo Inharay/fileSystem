@@ -1,4 +1,4 @@
-
+#pragma once
 
 #include "super_block_disk.h"
 class SuperBlockMem {

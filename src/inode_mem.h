@@ -1,4 +1,4 @@
-
+#pragma once
 #include "inode_disk.h"
 class Inode {
     public:

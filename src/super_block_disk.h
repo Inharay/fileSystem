@@ -1,3 +1,4 @@
+#pragma once
 struct SuperBlockDisk
 {
     int sb_magic;     // super block 魔数
