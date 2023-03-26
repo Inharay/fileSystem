@@ -13,6 +13,8 @@
 #include "src/inode_mem.h"
 #include "src/const_variable.h"
 #include "src/disk_manager.h"
+#include "src/entry.h"
+
 
 using namespace std;
 
@@ -63,6 +65,19 @@ TEST(testDiskManager, diskformat)
   sb.sb_disk.sb_magic = 0;
   sb.loadSuperBlockFromDisk(dm.disk_fd);
   EXPECT_EQ(sb.sb_disk.sb_magic, magic);
-  result = exec("rm -rf disk");
 
+  Inode inode;
+  inode.loadInodeFromDisk(dm.disk_fd, sb.sb_disk.d_map_blocks + sb.sb_disk.i_map_blocks + 1);
+  EXPECT_EQ(inode.i_disk.i_data_map[0], 1);
+
+  Entry entry;
+  entry.loadEntryFromDisk(dm.disk_fd, dm.GetBlkIdxByDataIdx(sb.sb_disk, 1), 0);
+  EXPECT_STREQ(entry.e_disk.name, ".");
+  EXPECT_EQ(entry.e_disk.inode_index, 1);
+
+  entry.loadEntryFromDisk(dm.disk_fd, dm.GetBlkIdxByDataIdx(sb.sb_disk, 1), 1);
+  EXPECT_STREQ(entry.e_disk.name, "..");
+  EXPECT_EQ(entry.e_disk.inode_index, 1);
+
+  result = exec("rm -rf disk");
 }

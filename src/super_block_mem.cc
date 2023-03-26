@@ -26,5 +26,6 @@ void SuperBlockMem::loadSuperBlockFromDisk(int fd) {
     ::lseek(fd, 0 , SEEK_SET);
     ::read(fd, buff, BLK_SIZE);
     memcpy(&sb_disk, buff, sizeof(sb_disk));
+
     return;
 }
