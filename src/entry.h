@@ -1,4 +1,5 @@
 #pragma once
+#include<string>
 struct EntryDisk
 {
     char name[20];
@@ -12,4 +13,6 @@ class Entry {
         Entry() {};
         int saveEntryToDisk(int fd, int block_index, int entry_index);
         int loadEntryFromDisk(int fd, int block_index, int entry_index);
+        static int isBlkHasEntry(int fd, int blkIndex, std::string entryName);
+
 };

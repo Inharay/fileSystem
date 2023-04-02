@@ -11,18 +11,23 @@
 #include "inode_mem.h"
 #include "const_variable.h"
 #include "entry.h"
-int DiskManager::FormatDisk() {
+
+DiskManager::DiskManager(char* name):disk_name(name) {
+
     if ((disk_fd = open(disk_name, O_RDWR)) < 0) {
-        SYS_ERR("open error %s", disk_name);
+        throw std::runtime_error("open disk error");
     }
     struct stat stat;
     if (fstat(disk_fd, &stat) < 0) {
-        SYS_ERR("get stat error");
+        throw std::runtime_error("disk status error");
     }
 
     if ((stat.st_size >> 20) < 10) {
         throw std::runtime_error("disk size small than 10MB");
     }
+};
+
+int DiskManager::FormatDisk() {
 
     SuperBlockMem sp_block;
     sp_block.saveSuperBlockToDisk(disk_fd);
@@ -31,6 +36,7 @@ int DiskManager::FormatDisk() {
 
     Inode root_inode;
     root_inode.i_disk.i_data_map[0] = 1;
+    root_inode.i_num = 1;
 
     // 添加默认目录
     Entry entryDot{".", 1};
@@ -40,10 +46,10 @@ int DiskManager::FormatDisk() {
     entryDotDot.saveEntryToDisk(disk_fd, GetBlkIdxByDataIdx(sp_block.sb_disk, root_inode.i_disk.i_data_map[0]), 1);
 
     // 保存Inode
-    root_inode.saveInodeToDisk(disk_fd, GetBlkIdxByInodeIdx(sp_block.sb_disk , 1));
+    root_inode.saveInodeToDisk(disk_fd, GetBlkIdxByInodeIdx(sp_block.sb_disk, root_inode.i_num));
 
     // 更新InodeMap
-    SetMapStatus(1, 0, 1);
+    SetMapStatus(1, root_inode.i_num - 1, 1);
 
     // 更新DataMap
     SetMapStatus(1 + sp_block.sb_disk.i_map_blocks, 0 , 1);
@@ -90,7 +96,22 @@ void DiskManager::SetMapStatus(int startBlkIdx, int mapIdx, int8_t status)
 
 }
 
+int DiskManager::findEntryInodeNum(SuperBlockDisk &s_block, Inode &inode, std::string entryName) 
+{
+    int resInodeNum = -1;
+    for (int i = 0; i < sizeof(inode.i_disk.i_data_map); i++) {
+        int data_num = inode.i_disk.i_data_map[i];
+        if (data_num != 0) {
+            resInodeNum = Entry::isBlkHasEntry(disk_fd, GetBlkIdxByDataIdx(s_block, data_num), entryName);
+            if (resInodeNum != -1) {
+                return resInodeNum;
+            }
+        }
+    }
+    return resInodeNum;
+}
+
+
 DiskManager::~DiskManager()
 {
-    close(disk_fd);
 }

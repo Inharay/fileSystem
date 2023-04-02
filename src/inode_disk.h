@@ -17,10 +17,6 @@ struct InodeDisk
 	uid_t	i_uid;
 	/* the owner'group of this file */
 	gid_t	i_gid;
-	/*
-	 * 0-5: direct block.
-	 * 6: indirect block.
-	 * 7: double indirect block.
-	 */
+
 	unsigned int i_data_map[8];
 };

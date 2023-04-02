@@ -15,8 +15,9 @@ public:
     int disk_fd;
     int GetBlkIdxByDataIdx(SuperBlockDisk &s_block, int data_blk_index);
     int GetBlkIdxByInodeIdx(SuperBlockDisk &s_block, int inode_blk_index);
-
-    DiskManager(char* name):disk_name(name){};
+    int findEntryInodeNum(SuperBlockDisk &s_block, Inode &inode, std::string entryName);
+    
+    DiskManager(char* name);
     ~DiskManager();
     int FormatDisk();
 

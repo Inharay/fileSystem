@@ -6,6 +6,7 @@
 Inode::Inode() {
     i_disk.i_nlink = 2;
     i_disk.i_size = 0;
+    i_num = -1;
 }
 
 int Inode::saveInodeToDisk(int fd, int block_index) {
